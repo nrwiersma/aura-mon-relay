@@ -1,0 +1,13 @@
+url: "http://aura-mon.local"
+databases:
+  - type: influxdb2
+    influxdb2:
+      url: http://influxdb2.local
+      org: YOUR_ORG
+      bucket: YOUR_BUCKET
+      token: YOUR_SECRET_TOKEN
+  - type: influxdb3
+    influxdb3:
+      url: http://influxdb3.local
+      database: YOUR_DATABASE
+      token: YOUR_SECRET_TOKEN
