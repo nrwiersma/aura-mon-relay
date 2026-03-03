@@ -1,12 +1,17 @@
 // Package config provides structures and functions to parse YAML configuration for the relay.
 package config
 
-import "gopkg.in/yaml.v3"
+import (
+	"time"
+
+	"gopkg.in/yaml.v3"
+)
 
 // Config is the configuration for the relay, including the
 // URL to listen on and the databases to forward data to.
 type Config struct {
 	URL       string     `yaml:"url"`
+	InitialTS time.Time  `yaml:"initialTs"`
 	Databases []Database `yaml:"databases"`
 }
 

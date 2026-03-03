@@ -1,3 +1,5 @@
+// Package storage provides a simple implementation of a timestamp storage that uses a file to persist the last
+// successful timestamp.
 package storage
 
 import (
@@ -15,8 +17,16 @@ type File struct {
 }
 
 // NewFile creates a new File storage with the given path.
-func NewFile(path string) *File {
-	return &File{path: filepath.Clean(path)}
+func NewFile(path string) (*File, error) {
+	path = filepath.Clean(path)
+
+	if _, err := os.Stat(filepath.Dir(path)); os.IsNotExist(err) {
+		if err = os.MkdirAll(filepath.Dir(path), 0o750); err != nil {
+			return nil, fmt.Errorf("creating directory for storage file: %w", err)
+		}
+	}
+
+	return &File{path: filepath.Clean(path)}, nil
 }
 
 // Read reads the last successful timestamp from the file. If the file does not exist,

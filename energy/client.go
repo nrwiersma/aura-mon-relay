@@ -1,6 +1,7 @@
 package energy
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"io"
@@ -69,10 +70,18 @@ func (c *Client) Get(ctx context.Context, start time.Time, intvl int) ([]Row, er
 	}()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+		b, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("unexpected status code for query %q: (%d) %s",
+			req.URL.String(), resp.StatusCode, string(b),
+		)
 	}
 
-	rows, err := parseCSV(resp.Body)
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("reading response body: %w", err)
+	}
+
+	rows, err := parseCSV(bytes.NewReader(b))
 	if err != nil {
 		return nil, fmt.Errorf("parsing CSV: %w", err)
 	}

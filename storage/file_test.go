@@ -15,7 +15,8 @@ import (
 func TestFile_Read(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "ts.txt")
-	store := storage.NewFile(path)
+	store, err := storage.NewFile(path)
+	require.NoError(t, err)
 
 	want := time.Date(2025, time.February, 3, 4, 5, 6, 0, time.UTC)
 	require.NoError(t, store.Write(want))
@@ -29,11 +30,12 @@ func TestFile_Read(t *testing.T) {
 func TestFile_Write(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "ts.txt")
-	store := storage.NewFile(path)
+	store, err := storage.NewFile(path)
+	require.NoError(t, err)
 
 	want := time.Date(2025, time.January, 2, 3, 4, 5, 0, time.UTC)
 
-	err := store.Write(want)
+	err = store.Write(want)
 	require.NoError(t, err)
 
 	require.NoError(t, err)

@@ -2,6 +2,7 @@ package config_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/nrwiersma/aura-mon-relay/config"
 	"github.com/stretchr/testify/assert"
@@ -18,6 +19,7 @@ func TestParse(t *testing.T) {
 		{
 			name: "allows valid config",
 			yaml: `url: http://localhost:8080
+initialTs: 2024-01-02T03:04:05Z
 databases:
     - type: influxdb2
       influxdb2:
@@ -32,7 +34,8 @@ databases:
         token: t2
 `,
 			want: config.Config{
-				URL: "http://localhost:8080",
+				URL:       "http://localhost:8080",
+				InitialTS: time.Date(2024, 1, 2, 3, 4, 5, 0, time.UTC),
 				Databases: []config.Database{
 					{
 						Type: "influxdb2",
