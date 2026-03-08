@@ -1,6 +1,6 @@
 module github.com/nrwiersma/aura-mon-relay
 
-go 1.26.0
+go 1.26.1
 
 require (
 	github.com/InfluxCommunity/influxdb3-go v0.14.0
