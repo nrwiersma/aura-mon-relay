@@ -30,3 +30,6 @@ jobs:
         uses: goreleaser/goreleaser-action@v7
         with:
           args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GORELEASER_CURRENT_TAG: ${{ github.ref_name }}
