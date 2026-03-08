@@ -1,0 +1,60 @@
+version: 2
+project_name: aura-mon-relay
+dist: dist
+
+gomod:
+  proxy: true
+
+builds:
+  - id: relay
+    main: ./cmd/relay
+    binary: relay
+    ldflags:
+      - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{ .CommitDate }}
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    env:
+      - CGO_ENABLED=0
+
+archives:
+  - formats: ["binary"]
+
+changelog:
+  disable: true
+
+checksum:
+  name_template: '{{ .ProjectName }}_checksums.txt'
+
+snapshot:
+  version_template: "{{ .Tag }}"
+
+dockers:
+  - dockerfile: Dockerfile
+    goos: linux
+    goarch: amd64
+    image_templates:
+      - "ghcr.io/nrwiersma/aura-mon-relay:{{ .Tag }}"
+
+nfpms:
+  - id: relay-packages
+    package_name: aura-mon-relay
+    file_name_template: "{{ .ConventionalFileName }}"
+    maintainer: "Nicholas Wiersma <nick@wiersma.co.za>"
+    description: Relay Aura-Mon energy data to configured databases
+    formats:
+      - deb
+      - rpm
+    ids:
+      - relay
+    bindir: /usr/bin
+    contents:
+      - src: ./config.yaml
+        dst: /etc/aura-mon/relay.yaml
+        type: config|noreplace
+      - src: ./release/systemd/aura-mon-relay.service
+        dst: /usr/lib/systemd/system/aura-mon-relay.service
+      - dst: /opt/aura-mon
+        type: dir

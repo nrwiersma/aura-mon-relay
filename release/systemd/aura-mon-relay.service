@@ -1,0 +1,15 @@
+[Unit]
+Description=Aura-Mon Relay service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/relay --config /etc/aura-mon/relay.yaml --state /opt/aura-mon/relay.state
+StandardOutput=file:/var/log/aura-mon-relay.log
+StandardError=file:/var/log/aura-mon-relay.log
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target

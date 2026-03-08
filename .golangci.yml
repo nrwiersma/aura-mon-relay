@@ -1,0 +1,53 @@
+version: "2"
+
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+    - goimports
+  settings:
+    gofumpt:
+      extra-rules: true
+  exclusions:
+    generated: lax
+
+linters:
+  default: all
+  disable:
+    - depguard
+    - err113
+    - exhaustive
+    - exhaustruct
+    - forcetypeassert
+    - funlen
+    - funcorder
+    - gochecknoglobals
+    - gochecknoinits
+    - ireturn
+    - mnd
+    - nlreturn
+    - nonamedreturns
+    - noinlineerr
+    - paralleltest
+    - varnamelen
+    - wrapcheck
+    - wsl
+    - wsl_v5
+  settings:
+    cyclop:
+      max-complexity: 15
+    gosec:
+      excludes:
+        - G703 # Not able to mitigate.
+        - G704 # Not able to mitigate.
+    revive:
+      rules:
+        - name: var-naming
+          arguments:
+            - []
+            - []
+            - - skip-package-name-checks: true
+                skip-package-name-collision-with-go-std: true
+  exclusions:
+    generated: lax
