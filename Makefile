@@ -14,7 +14,7 @@ tidy:
 
 # Build the binary
 build:
-	@find ./cmd/* -maxdepth 1 -type d -exec go build {} \;
+	@goreleaser release --snapshot --clean
 .PHONY: build
 
 # Run all tests
