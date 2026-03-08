@@ -26,7 +26,7 @@ var flags = cmd.Flags{
 		Aliases: []string{"c"},
 		Usage:   "Path to relay YAML config",
 		Value:   "config.yaml",
-		Sources: cli.EnvVars(strcase.ToSNAKE(flagStatePath)),
+		Sources: cli.EnvVars(strcase.ToSNAKE(flagConfigPath)),
 	},
 	&cli.StringFlag{
 		Name:     flagStatePath,

@@ -24,7 +24,7 @@ jobs:
         with:
           go-version-file: go.mod
 
-      - name: Run govalncheck
+      - name: Run govulncheck
         run: |
           go run golang.org/x/vuln/cmd/govulncheck@latest ./...
 

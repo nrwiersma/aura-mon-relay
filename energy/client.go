@@ -25,8 +25,10 @@ func NewClient(baseURL string) (*Client, error) {
 	}
 
 	return &Client{
-		client: &http.Client{},
-		url:    u,
+		client: &http.Client{
+			Timeout: 10 * time.Second,
+		},
+		url: u,
 	}, nil
 }
 
@@ -50,7 +52,7 @@ type Device struct {
 // Get retrieves energy data starting from the specified time with the given interval in seconds.
 func (c *Client) Get(ctx context.Context, start time.Time, intvl int) ([]Row, error) {
 	v := url.Values{
-		"start": []string{strconv.Itoa(int(start.Unix()))},
+		"start": []string{strconv.FormatInt(start.Unix(), 10)},
 		"intvl": []string{strconv.Itoa(intvl)},
 	}
 	u := c.url.JoinPath("energy").ResolveReference(&url.URL{RawQuery: v.Encode()})

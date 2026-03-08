@@ -55,7 +55,7 @@ func TestInfluxDB2Write_EmptyMetricsNoOp(t *testing.T) {
 
 	writer := &mockInfluxDB2Writer{}
 	writer.Test(t)
-	writer.On("WritePoint", mock.Anything).Return(nil).Once()
+
 	client := &fakeInfluxDB2Client{writer: writer}
 
 	db := database.NewInfluxDB2WithClient(client, "org", "bucket")
