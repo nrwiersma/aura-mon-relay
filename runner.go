@@ -91,7 +91,9 @@ func (r *Runner) Run(ctx context.Context) error {
 		}
 
 		queryTS = lastTS.Add(interval)
-		if queryTS.After(time.Now().Add(-1 * interval)) {
+		now := time.Now()
+		limitTS := now.Truncate(interval).Add(-1 * interval)
+		if queryTS.After(limitTS) || queryTS.Equal(limitTS) {
 			nextCh = time.After(interval)
 			continue
 		}
@@ -101,7 +103,7 @@ func (r *Runner) Run(ctx context.Context) error {
 			r.log.Error("Could not relay metrics",
 				lctx.Err(err),
 				lctx.Time("timestamp", queryTS),
-				lctx.Time("now", time.Now()),
+				lctx.Time("now", now),
 			)
 
 			nextCh = time.After(10 * time.Second)
