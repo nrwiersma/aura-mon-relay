@@ -20,6 +20,8 @@ func runRunner(ctx context.Context, cmd *cli.Command) error {
 	}
 	defer obsvr.Close()
 
+	obsvr.Log.Info("Aura Mon Relay Starting", lctx.Str("version", version))
+
 	cfg, err := newConfig(cmd.String(flagConfigPath))
 	if err != nil {
 		return err
