@@ -13,7 +13,7 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-const version = "dev"
+var version = "dev"
 
 const (
 	flagConfigPath = "config"
