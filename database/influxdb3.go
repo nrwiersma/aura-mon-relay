@@ -9,7 +9,7 @@ import (
 	"github.com/InfluxCommunity/influxdb3-go/influxdb3"
 )
 
-// InfluxDB3Client defines the methods required to interact with an InfluxDB 3.x client.
+// InfluxDB3Client is the interface required to interact with an InfluxDB 3.x client.
 type InfluxDB3Client interface {
 	WritePoints(ctx context.Context, points []*influxdb3.Point, options ...influxdb3.WriteOption) error
 	Close() error
@@ -51,7 +51,7 @@ func NewInfluxDB3WithClient(client InfluxDB3Client, database string) *InfluxDB3 
 	}
 }
 
-// Write sends the given metrics to InfluxDB. It returns an error if the write operation fails.
+// Write sends the given metrics to InfluxDB 3.x.
 func (db *InfluxDB3) Write(ctx context.Context, metrics []Metric) error {
 	if len(metrics) == 0 {
 		return nil
