@@ -1,3 +1,2 @@
-// Package database provides a simple interface for interacting with a database, including functionality
-// for writing metrics to the database.
+// Package database provides interfaces and implementations for writing metrics to time-series databases.
 package database

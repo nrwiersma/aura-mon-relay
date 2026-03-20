@@ -14,13 +14,13 @@ type influxDB2Writer interface {
 	WritePoint(ctx context.Context, point ...*write.Point) error
 }
 
-// InfluxDB2 implements the Database interface for InfluxDB 2.x.
+// InfluxDB2 writes metrics to an InfluxDB 2.x instance.
 type InfluxDB2 struct {
 	client influxdb2.Client
 	writer influxDB2Writer
 }
 
-// NewInfluxDB2 creates a new InfluxDB2 instance with the given connection parameters.
+// NewInfluxDB2 creates a new InfluxDB2 using the given connection parameters.
 func NewInfluxDB2(rawURL, token, org, bucket string) (*InfluxDB2, error) {
 	u, err := url.Parse(rawURL)
 	if err != nil {
@@ -34,7 +34,7 @@ func NewInfluxDB2(rawURL, token, org, bucket string) (*InfluxDB2, error) {
 	return NewInfluxDB2WithClient(client, org, bucket), nil
 }
 
-// NewInfluxDB2WithClient creates a new InfluxDB2 instance using an existing InfluxDB client.
+// NewInfluxDB2WithClient creates a new InfluxDB2 using the provided client.
 func NewInfluxDB2WithClient(client influxdb2.Client, org, bucket string) *InfluxDB2 {
 	return &InfluxDB2{
 		client: client,
@@ -42,7 +42,7 @@ func NewInfluxDB2WithClient(client influxdb2.Client, org, bucket string) *Influx
 	}
 }
 
-// Write sends the given metrics to InfluxDB. It returns an error if the write operation fails.
+// Write sends the given metrics to InfluxDB 2.x.
 func (db *InfluxDB2) Write(ctx context.Context, metrics []Metric) error {
 	if len(metrics) == 0 {
 		return nil
@@ -73,7 +73,6 @@ func toInfluxFields(fields map[string]float64) map[string]any {
 }
 
 // Close releases any resources held by the InfluxDB2 instance.
-// This does not return an error.
 func (db *InfluxDB2) Close() error {
 	db.client.Close()
 	return nil

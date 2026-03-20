@@ -1,5 +1,5 @@
-// Package relay implements the main logic of the relay, which periodically fetches energy metrics from a client and
-// sends them to one or more databases, while keeping track of the last successful timestamp using a storage.
+// Package relay periodically fetches energy metrics from a client and forwards them
+// to one or more databases, tracking progress with a persistent timestamp storage.
 package relay
 
 import (
@@ -16,25 +16,24 @@ import (
 
 const interval = 5 * time.Second
 
-// Client represents a source of energy metrics.
+// Client is the interface for fetching energy rows from a device.
 type Client interface {
 	Get(ctx context.Context, start time.Time, intvl int) ([]energy.Row, error)
 }
 
-// DB represents a destination for energy metrics.
+// DB is the interface for writing metrics to a database.
 type DB interface {
 	Write(ctx context.Context, metrics []database.Metric) error
 }
 
-// Storage represents a storage for the last successful timestamp.
+// Storage is the interface for persisting the last successfully processed timestamp.
 type Storage interface {
 	Read() (time.Time, error)
 	Write(ts time.Time) error
 }
 
-// Runner is responsible for periodically fetching metrics from the client and
-// sending them to the databases, while keeping track of the last successful
-// timestamp using the storage.
+// Runner periodically fetches metrics from a Client and writes them to one or more
+// databases, tracking the last successful timestamp via Storage.
 type Runner struct {
 	client    Client
 	dbs       []DB
@@ -44,7 +43,7 @@ type Runner struct {
 	log *logger.Logger
 }
 
-// NewRunner returns a relay runner.
+// NewRunner returns a Runner that relays metrics from client to dbs.
 func NewRunner(client Client, dbs []DB, storage Storage, initialTS time.Time, obsrv *observe.Observer) *Runner {
 	return &Runner{
 		client:    client,
@@ -55,7 +54,7 @@ func NewRunner(client Client, dbs []DB, storage Storage, initialTS time.Time, ob
 	}
 }
 
-// Run periodically sends metrics from the client to the databases.
+// Run fetches and forwards metrics on a fixed interval until ctx is cancelled.
 func (r *Runner) Run(ctx context.Context) error {
 	storedTS, err := r.storage.Read()
 	if err != nil {

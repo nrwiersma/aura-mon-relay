@@ -32,24 +32,25 @@ func NewClient(baseURL string) (*Client, error) {
 	}, nil
 }
 
-// Row is a single data point for a device.
+// Row is a single reading from the device, containing a timestamp, grid frequency,
+// and per-device energy data.
 type Row struct {
 	Timestamp time.Time
-	Hz        float64
+	Hz        float64 // Grid frequency in hertz.
 	Devices   []Device
 }
 
-// Device is a single device's energy data.
+// Device holds the energy measurements for a single monitored device.
 type Device struct {
 	Name        string
-	Volts       float64
-	Amps        float64
-	Watts       float64
-	WattHours   float64
-	PowerFactor float64
+	Volts       float64 // Voltage in volts.
+	Amps        float64 // Current in amperes.
+	Watts       float64 // Real power in watts.
+	WattHours   float64 // Energy consumed in watt-hours.
+	PowerFactor float64 // Power factor (0–1).
 }
 
-// Get retrieves energy data starting from the specified time with the given interval in seconds.
+// Get retrieves energy rows starting from start, covering one interval of intvl seconds.
 func (c *Client) Get(ctx context.Context, start time.Time, intvl int) ([]Row, error) {
 	v := url.Values{
 		"start": []string{strconv.FormatInt(start.Unix(), 10)},

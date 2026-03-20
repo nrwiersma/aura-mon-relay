@@ -1,2 +1,2 @@
-// Package energy provides a simple interface to query the current energy usage of the system.
+// Package energy provides a client for querying energy usage data from an Aura-Mon device.
 package energy
