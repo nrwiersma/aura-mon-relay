@@ -112,7 +112,7 @@ func (r *Runner) Run(ctx context.Context) error {
 		nextCh = time.After(waitFor(n))
 
 		if ts.IsZero() {
-			if time.Until(lastTS).Abs() > time.Hour {
+			if time.Until(lastTS).Abs() > time.Minute {
 				lastTS = lastTS.Add(interval)
 				r.log.Debug("No metrics found, but last timestamp is old. Advancing to next interval.",
 					lctx.Time("last", lastTS),
