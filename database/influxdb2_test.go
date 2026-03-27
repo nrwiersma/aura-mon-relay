@@ -69,16 +69,25 @@ func TestInfluxDB2Write_EmptyMetricsNoOp(t *testing.T) {
 func TestInfluxDB2Write_WritesPoints(t *testing.T) {
 	t.Parallel()
 
+	now := time.Now().UTC()
+
 	writer := &mockInfluxDB2Writer{}
 	writer.Test(t)
-	writer.On("WritePoint", mock.Anything).Return(nil).Once()
+	writer.On("WritePoint", []*write.Point{
+		write.NewPoint(
+			"meter",
+			map[string]string{"device": "main"},
+			map[string]any{"watts": 123.4},
+			now.Truncate(time.Second),
+		),
+	}).Return(nil).Once()
 	client := &fakeInfluxDB2Client{writer: writer}
 
 	db := database.NewInfluxDB2WithClient(client, "org", "bucket")
 
 	err := db.Write(t.Context(), []database.Metric{{
 		Measurement: "meter",
-		Timestamp:   time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC).Unix(),
+		Timestamp:   now.Unix(),
 		Tags:        map[string]string{"device": "main"},
 		Fields:      map[string]float64{"watts": 123.4},
 	}})

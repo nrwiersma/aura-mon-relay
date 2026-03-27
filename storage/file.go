@@ -18,11 +18,8 @@ type File struct {
 // NewFile returns a File that stores timestamps at path, creating any missing directories.
 func NewFile(path string) (*File, error) {
 	path = filepath.Clean(path)
-
-	if _, err := os.Stat(filepath.Dir(path)); os.IsNotExist(err) {
-		if err = os.MkdirAll(filepath.Dir(path), 0o750); err != nil {
-			return nil, fmt.Errorf("creating directory for storage file: %w", err)
-		}
+	if err := os.MkdirAll(filepath.Dir(path), 0o750); err != nil {
+		return nil, fmt.Errorf("creating directory for storage file: %w", err)
 	}
 
 	return &File{path: filepath.Clean(path)}, nil
@@ -30,12 +27,11 @@ func NewFile(path string) (*File, error) {
 
 // Read returns the last stored timestamp, or the zero time if no file exists yet.
 func (f *File) Read() (time.Time, error) {
-	if _, err := os.Stat(f.path); os.IsNotExist(err) {
-		return time.Time{}, nil
-	}
-
 	data, err := os.ReadFile(f.path)
 	if err != nil {
+		if os.IsNotExist(err) {
+			return time.Time{}, nil
+		}
 		return time.Time{}, fmt.Errorf("reading file: %w", err)
 	}
 
@@ -54,29 +50,21 @@ func (f *File) Write(ts time.Time) error {
 	}
 	defer func() {
 		_ = file.Close()
+		_ = os.Remove(filepath.Clean(file.Name()))
 	}()
-	fileName := filepath.Clean(file.Name())
 
 	_, err = file.WriteString(strconv.FormatInt(ts.Unix(), 10) + "\n")
 	if err != nil {
-		_ = os.Remove(fileName)
-
 		return fmt.Errorf("writing to temp file: %w", err)
 	}
 	if err = file.Sync(); err != nil {
-		_ = os.Remove(fileName)
-
 		return fmt.Errorf("syncing temp file: %w", err)
 	}
 	if err = file.Close(); err != nil {
-		_ = os.Remove(fileName)
-
 		return fmt.Errorf("closing temp file: %w", err)
 	}
 
-	if err = os.Rename(file.Name(), f.path); err != nil {
-		_ = os.Remove(fileName)
-
+	if err = os.Rename(filepath.Clean(file.Name()), f.path); err != nil {
 		return fmt.Errorf("renaming temp file: %w", err)
 	}
 	return nil

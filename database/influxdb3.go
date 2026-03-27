@@ -17,8 +17,7 @@ type InfluxDB3Client interface {
 
 // InfluxDB3 implements the Database interface for InfluxDB 3.x.
 type InfluxDB3 struct {
-	client   InfluxDB3Client
-	database string
+	client InfluxDB3Client
 }
 
 // NewInfluxDB3 creates a new InfluxDB3 instance with the given connection parameters.
@@ -40,14 +39,13 @@ func NewInfluxDB3(rawURL, token, database string) (*InfluxDB3, error) {
 		return nil, fmt.Errorf("creating influxdb3 client: %w", err)
 	}
 
-	return NewInfluxDB3WithClient(client, database), nil
+	return NewInfluxDB3WithClient(client), nil
 }
 
 // NewInfluxDB3WithClient creates a new InfluxDB3 instance using an existing InfluxDB client.
-func NewInfluxDB3WithClient(client InfluxDB3Client, database string) *InfluxDB3 {
+func NewInfluxDB3WithClient(client InfluxDB3Client) *InfluxDB3 {
 	return &InfluxDB3{
-		client:   client,
-		database: database,
+		client: client,
 	}
 }
 
@@ -66,7 +64,7 @@ func (db *InfluxDB3) Write(ctx context.Context, metrics []Metric) error {
 		for key, value := range metric.Fields {
 			point.SetField(key, value)
 		}
-		point.SetTimestamp(time.Unix(metric.Timestamp, 0))
+		point.SetTimestamp(time.Unix(metric.Timestamp, 0).UTC())
 		points = append(points, point)
 	}
 

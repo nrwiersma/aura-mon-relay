@@ -48,28 +48,36 @@ func TestInfluxDB3Write_EmptyMetricsNoOp(t *testing.T) {
 
 	writer := &mockInfluxDB3Client{}
 	writer.Test(t)
-	writer.On("WritePoints", mock.Anything, mock.Anything).Return(nil).Once()
 
-	db := database.NewInfluxDB3WithClient(writer, "database")
+	db := database.NewInfluxDB3WithClient(writer)
 
 	err := db.Write(t.Context(), nil)
 
 	require.NoError(t, err)
-	writer.AssertNotCalled(t, "WritePoints", mock.Anything, mock.Anything)
+	writer.AssertNotCalled(t, "WritePoints", mock.Anything)
 }
 
 func TestInfluxDB3Write_WritesPoints(t *testing.T) {
 	t.Parallel()
 
+	now := time.Now().UTC()
+
 	writer := &mockInfluxDB3Client{}
 	writer.Test(t)
-	writer.On("WritePoints", mock.Anything, mock.Anything).Return(nil).Once()
+	writer.On("WritePoints", []*influxdb3.Point{
+		{Values: &influxdb3.PointValues{
+			MeasurementName: "meter",
+			Tags:            map[string]string{"device": "main"},
+			Fields:          map[string]interface{}{"watts": 123.4},
+			Timestamp:       now.Truncate(time.Second),
+		}},
+	}).Return(nil).Once()
 
-	db := database.NewInfluxDB3WithClient(writer, "database")
+	db := database.NewInfluxDB3WithClient(writer)
 
 	err := db.Write(t.Context(), []database.Metric{{
 		Measurement: "meter",
-		Timestamp:   time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC).Unix(),
+		Timestamp:   now.Unix(),
 		Tags:        map[string]string{"device": "main"},
 		Fields:      map[string]float64{"watts": 123.4},
 	}})
@@ -81,28 +89,37 @@ func TestInfluxDB3Write_WritesPoints(t *testing.T) {
 func TestInfluxDB3Write_PropagatesWriteError(t *testing.T) {
 	t.Parallel()
 
+	now := time.Now().UTC()
+
 	writer := &mockInfluxDB3Client{}
 	writer.Test(t)
-	writer.On("WritePoints", mock.Anything, mock.Anything).Return(errors.New("test")).Once()
+	writer.On("WritePoints", []*influxdb3.Point{
+		{Values: &influxdb3.PointValues{
+			MeasurementName: "meter",
+			Tags:            map[string]string{},
+			Fields:          map[string]interface{}{},
+			Timestamp:       now.Truncate(time.Second),
+		}},
+	}).Return(errors.New("test")).Once()
 
-	db := database.NewInfluxDB3WithClient(writer, "database")
+	db := database.NewInfluxDB3WithClient(writer)
 
-	err := db.Write(t.Context(), []database.Metric{{Measurement: "meter", Timestamp: 1}})
+	err := db.Write(t.Context(), []database.Metric{{Measurement: "meter", Timestamp: now.Unix()}})
 
 	require.Error(t, err)
 	require.ErrorContains(t, err, "writing metrics to influxdb3")
+	writer.AssertExpectations(t)
 }
 
 type mockInfluxDB3Client struct {
 	mock.Mock
 }
 
-func (w *mockInfluxDB3Client) WritePoints(_ context.Context, _ []*influxdb3.Point, _ ...influxdb3.WriteOption) error {
-	args := w.Called(mock.Anything, mock.Anything)
+func (w *mockInfluxDB3Client) WritePoints(_ context.Context, pts []*influxdb3.Point, _ ...influxdb3.WriteOption) error {
+	args := w.Called(pts)
 	return args.Error(0)
 }
 
 func (w *mockInfluxDB3Client) Close() error {
-	args := w.Called()
-	return args.Error(0)
+	return nil
 }
