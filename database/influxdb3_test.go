@@ -68,7 +68,7 @@ func TestInfluxDB3Write_WritesPoints(t *testing.T) {
 		{Values: &influxdb3.PointValues{
 			MeasurementName: "meter",
 			Tags:            map[string]string{"device": "main"},
-			Fields:          map[string]interface{}{"watts": 123.4},
+			Fields:          map[string]any{"watts": 123.4},
 			Timestamp:       now.Truncate(time.Second),
 		}},
 	}).Return(nil).Once()
@@ -97,7 +97,7 @@ func TestInfluxDB3Write_PropagatesWriteError(t *testing.T) {
 		{Values: &influxdb3.PointValues{
 			MeasurementName: "meter",
 			Tags:            map[string]string{},
-			Fields:          map[string]interface{}{},
+			Fields:          map[string]any{},
 			Timestamp:       now.Truncate(time.Second),
 		}},
 	}).Return(errors.New("test")).Once()
