@@ -54,7 +54,7 @@ func (db *InfluxDB2) Write(ctx context.Context, metrics []Metric) error {
 			metric.Measurement,
 			metric.Tags,
 			toInfluxFields(metric.Fields),
-			time.Unix(metric.Timestamp, 0),
+			time.Unix(metric.Timestamp, 0).UTC(),
 		))
 	}
 
