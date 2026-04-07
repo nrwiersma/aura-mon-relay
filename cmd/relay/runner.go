@@ -8,13 +8,18 @@ import (
 	"time"
 
 	"github.com/hamba/cmd/v3/observe"
+	"github.com/hamba/logger/v2"
 	lctx "github.com/hamba/logger/v2/ctx"
 	relay "github.com/nrwiersma/aura-mon-relay"
 	"github.com/urfave/cli/v3"
 )
 
 func runRunner(ctx context.Context, cmd *cli.Command) error {
-	obsvr, err := observe.New(ctx, cmd, "aura-mon-relay", &observe.Options{StatsRuntime: true})
+	obsvr, err := observe.New(ctx, cmd, "aura-mon-relay", &observe.Options{
+		LogTimestamps: true,
+		LogTimeFormat: logger.TimeFormatISO8601,
+		StatsRuntime:  true,
+	})
 	if err != nil {
 		return err
 	}
